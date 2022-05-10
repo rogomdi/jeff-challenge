@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: recommender
+management:
+  endpoints:
+    web:
+      exposure:
+        include: *

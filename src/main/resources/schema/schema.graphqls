@@ -1,0 +1,48 @@
+scalar UUID
+
+type Query {
+    recommendation(id: UUID!): Recommendation
+    recommendations(customerId: UUID!, paging: Paging): Recommendation
+}
+
+input Paging {
+    page: Int = 0
+    size: Int = 10
+}
+
+type Mutation {
+    recommend(customerId: UUID): Recommendation
+}
+
+type Recommendation {
+    id: UUID
+    customerId: UUID
+    product: Product
+    score: Int
+    type: RecommendationType
+}
+enum RecommendationType {
+    TOP_PRODUCTS,
+    VERTICAL
+}
+
+type Product {
+    id: Int
+    name: String
+    type: ProductType
+    vertical: Vertical
+    price: Float
+    margin: Float
+}
+
+enum ProductType {
+    SUBSCRIPTION,
+    SERVICE
+}
+
+enum Vertical {
+    LAUNDRY,
+    BEAUTY,
+    FIT,
+    RELAX
+}

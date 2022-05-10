@@ -1,0 +1,10 @@
+server:
+  port: 80
+
+recommender:
+  score-service-url: http://localhost:9001/score/
+  customer-service-url: http://localhost:9002/customer/
+
+management:
+  server:
+    port: 8080
