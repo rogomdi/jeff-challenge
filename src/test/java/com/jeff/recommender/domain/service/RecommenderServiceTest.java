@@ -9,6 +9,7 @@ import com.jeff.recommender.domain.repository.RecommendationRepository;
 import com.jeff.recommender.domain.repository.ScoreRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -27,6 +28,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
+@Tag("Unit")
 class RecommenderServiceTest {
   private static final RecommendationRepository recommendationRepository =
       Mockito.mock(RecommendationRepository.class);
@@ -110,7 +112,8 @@ class RecommenderServiceTest {
         .thenReturn(List.of(haircutSatisfaction));
     Mockito.when(scoreRepository.findTopScoresByVertical(Mockito.eq(Vertical.RELAX)))
         .thenReturn(List.of(fullBodyMassageSatisfaction, headMassageSatisfaction));
-    List<Recommendation> recommendations = recommenderService.recommend(customer.getId());
+    List<Recommendation> recommendations =
+        recommenderService.recommend(customer.getId()).collect(Collectors.toList());
     assertEquals(1, recommendations.size());
     assertEquals(fullBodyMassage, recommendations.get(0).getProduct());
     assertEquals(Type.VERTICAL, recommendations.get(0).getType());
@@ -133,7 +136,8 @@ class RecommenderServiceTest {
         .thenReturn(List.of(haircutSatisfaction));
     Mockito.when(scoreRepository.findTopScoresByVertical(Mockito.eq(Vertical.RELAX)))
         .thenReturn(List.of(fullBodyMassageSatisfaction, headMassageSatisfaction));
-    List<Recommendation> recommendations = recommenderService.recommend(customer.getId());
+    List<Recommendation> recommendations =
+        recommenderService.recommend(customer.getId()).collect(Collectors.toList());
     assertEquals(1, recommendations.size());
     assertEquals(haircut, recommendations.get(0).getProduct());
     assertEquals(Type.TOP_PRODUCTS, recommendations.get(0).getType());
@@ -156,7 +160,8 @@ class RecommenderServiceTest {
         .thenReturn(List.of(haircutSatisfaction));
     Mockito.when(scoreRepository.findTopScoresByVertical(Mockito.eq(Vertical.RELAX)))
         .thenReturn(List.of(fullBodyMassageSatisfaction, headMassageSatisfaction));
-    List<Recommendation> recommendations = recommenderService.recommend(customer.getId());
+    List<Recommendation> recommendations =
+        recommenderService.recommend(customer.getId()).collect(Collectors.toList());
     assertEquals(2, recommendations.size());
     Recommendation verticalRecommendation =
         recommendations.stream()

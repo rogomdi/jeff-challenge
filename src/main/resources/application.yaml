@@ -4,10 +4,3 @@ server:
 recommender:
   score-service-url: http://localhost:9001/score/
   customer-service-url: http://localhost:9002/customer/
-
-dgs:
-  graphql:
-    extensions:
-      scalars:
-        ids:
-          enabled: true

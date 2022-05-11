@@ -1,25 +1,27 @@
 scalar UUID
+scalar DateTime
 
 type Query {
     recommendation(id: UUID!): Recommendation
-    recommendations(customerId: UUID!, paging: Paging): Recommendation
+    recommendations(customerId: UUID!, paging: Paging = {page: 0, size: 10}): [Recommendation]
 }
 
 input Paging {
-    page: Int = 0
-    size: Int = 10
+    page: Int
+    size: Int
 }
 
 type Mutation {
-    recommend(customerId: UUID): Recommendation
+    recommend(customerId: UUID!): [Recommendation]
 }
 
 type Recommendation {
-    id: UUID
-    customerId: UUID
+    id: UUID!
+    customerId: UUID!
     product: Product
-    score: Int
-    type: RecommendationType
+    score: Int!
+    type: RecommendationType!
+    dateTime: DateTime!
 }
 enum RecommendationType {
     TOP_PRODUCTS,
@@ -27,10 +29,10 @@ enum RecommendationType {
 }
 
 type Product {
-    id: Int
-    name: String
-    type: ProductType
-    vertical: Vertical
+    id: Int!
+    name: String!
+    type: ProductType!
+    vertical: Vertical!
     price: Float
     margin: Float
 }

@@ -34,7 +34,7 @@ public class RecommenderService {
   public Stream<Recommendation> findByCustomer(UUID customerId, int page, int size) {
     return recommendationRepository.findByCustomer(customerId, page, size);
   }
-  public List<Recommendation> recommend(UUID customerId) {
+  public Stream<Recommendation> recommend(UUID customerId) {
     Customer customer =
         customerRepository
             .findById(customerId)
@@ -42,8 +42,7 @@ public class RecommenderService {
     ZonedDateTime generationTime = ZonedDateTime.now();
     return Stream.concat(
             getVerticalRecommendation(customer, getTopScoredProduct(customer), generationTime),
-            getTopProductsRecommendations(customer.getPersona(), customer, generationTime))
-        .collect(Collectors.toList());
+            getTopProductsRecommendations(customer.getPersona(), customer, generationTime));
   }
 
   private Optional<Satisfaction> getTopScoredProduct(Customer customer) {
