@@ -34,17 +34,28 @@ public class RecommenderService {
   public Stream<Recommendation> findByCustomer(UUID customerId, int page, int size) {
     return recommendationRepository.findByCustomer(customerId, page, size);
   }
+
+  /**
+   * Generates a recommendation for the {@link Customer}
+   *
+   * @param customerId {@link Customer} id
+   * @return {@link Stream} with the generated recommendations
+   */
   public Stream<Recommendation> recommend(UUID customerId) {
     Customer customer =
-        customerRepository
-            .findById(customerId)
-            .orElseThrow(CustomerNotFoundException::new);
+        customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
     ZonedDateTime generationTime = ZonedDateTime.now();
     return Stream.concat(
-            getVerticalRecommendation(customer, getTopScoredProduct(customer), generationTime),
-            getTopProductsRecommendations(customer.getPersona(), customer, generationTime));
+        getVerticalRecommendation(customer, getTopScoredProduct(customer), generationTime),
+        getTopProductsRecommendations(customer.getPersona(), customer, generationTime));
   }
 
+  /**
+   * Gets the product with highest score among the customer subscriptions
+   *
+   * @param customer {@link Customer} to generate the recommendation for
+   * @return The {@link Satisfaction} for the {@link Product} with highest score
+   */
   private Optional<Satisfaction> getTopScoredProduct(Customer customer) {
     return customer.getSubscriptions().stream()
         .map(product -> scoreRepository.findLast(customer.getPersona(), product.getId()))
@@ -53,9 +64,16 @@ public class RecommenderService {
         .max(Comparator.comparing(Satisfaction::getScore, Comparator.naturalOrder()));
   }
 
+  /**
+   * Generates a series of {@link Recommendation} based on the top scored products in every vertical
+   *
+   * @param customer {@link Customer} to generate the recommendation for
+   * @param topScoredProduct The {@link Satisfaction} for the {@link Product} with highest score
+   * @param generationTime time when the recommendation started
+   * @return {@link Stream} with the generated recommendations
+   */
   private Stream<Recommendation> getVerticalRecommendation(
       Customer customer, Optional<Satisfaction> topScoredProduct, ZonedDateTime generationTime) {
-    // TODO Make size dynamic depending on the number of products on every vertical
     return topScoredProduct
         .map(
             satisfaction ->
@@ -69,6 +87,15 @@ public class RecommenderService {
         .orElse(Stream.empty());
   }
 
+  /**
+   * Generates a series of {@link Recommendation} based on the top scored products for the customer
+   * {@link Persona}
+   *
+   * @param persona {@link Persona} to generate the recommendation for
+   * @param customer {@link Customer} to generate the recommendation for
+   * @param generationTime time when the recommendation started
+   * @return {@link Stream} with the generated recommendations
+   */
   private Stream<Recommendation> getTopProductsRecommendations(
       Persona persona, Customer customer, ZonedDateTime generationTime) {
     return buildRecommendation(
@@ -78,6 +105,16 @@ public class RecommenderService {
         generationTime);
   }
 
+  /**
+   * Transforms the {@link Stream} of {@link Satisfaction} into an {@link Stream} of {@link
+   * Recommendation} excluding the products that the {@link Customer} is subscribed already
+   *
+   * @param scores {@link Stream} of {@link Satisfaction} generated
+   * @param customer {@link Customer} to generate the recommendation for
+   * @param recommendationType {@link Type} of {@link Recommendation}
+   * @param generationTime time when the recommendation started
+   * @return {@link Stream} with the generated recommendations
+   */
   private Stream<Recommendation> buildRecommendation(
       Stream<Satisfaction> scores,
       Customer customer,

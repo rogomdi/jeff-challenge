@@ -13,12 +13,12 @@ public class RecommenderProperties {
     /**
      * URL for the score service
      */
-    private String scoreServiceUrl = "http://localhost:9001/score";
+    private String scoreServiceUrl = "http://localhost:9001/scores";
 
     /**
      * URL for the score service
      */
-    private String customerServiceUrl = "http://localhost:9002/customer";
+    private String customerServiceUrl = "http://localhost:9002/customers";
 
     public String getCustomerServiceUrl() {
         return customerServiceUrl.endsWith("/") ? customerServiceUrl : customerServiceUrl + "/";

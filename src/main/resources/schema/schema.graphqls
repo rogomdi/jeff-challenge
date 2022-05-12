@@ -2,16 +2,20 @@ scalar UUID
 scalar DateTime
 
 type Query {
+    "Query to retrieve an existing recommendation"
     recommendation(id: UUID!): Recommendation
+    "Query to the last recommendations for an user"
     recommendations(customerId: UUID!, paging: Paging = {page: 0, size: 10}): [Recommendation]
 }
 
+"Pagination input to set page size"
 input Paging {
     page: Int
     size: Int
 }
 
 type Mutation {
+    "Mutation to trigger a recommendation for a customer"
     recommend(customerId: UUID!): [Recommendation]
 }
 

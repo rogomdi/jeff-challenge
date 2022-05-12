@@ -2,9 +2,14 @@ server:
   port: 80
 
 recommender:
-  score-service-url: http://localhost:9001/score/
-  customer-service-url: http://localhost:9002/customer/
+  score-service-url: http://score-service/score/
+  customer-service-url: http://customer-service/customer/
 
 management:
   server:
     port: 8080
+
+spring:
+  data:
+    mongodb:
+      host: mongo
