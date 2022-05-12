@@ -9,7 +9,7 @@ So, changing these IDs to UUIDs in the Product entity, would improve this aspect
 
 General considerations
 ---
-- Customer ID is designed as an UUID
+- Customer ID is designed as a UUID
 - Customer can be retrieved by this UUID
 - Score service is deployed by default at port 9001 on localhost
 - Score service uses in docker the service name "score-service"
@@ -62,21 +62,18 @@ Build
 In order to build all components, from root folder you have to do one of the following steps:
 
 - Compile and build docker image: <br>
-  From the root folder, run the following command on both:<br> <code>./gradlew build && cd docker && ./build-image.sh</code>
+  From the root folder, run the following command:<br> <code>./gradlew build && cd docker && ./build-image.sh</code>
 
 - Compile: <br>
-  From the root folder, run the following command on both: <br> <code>./gradlew build</code>
+  From the root folder, run the following command: <br> <code>./gradlew build</code>
 
 - Compile skipping tests: <br>
-  From the root folder, run the following command on both: <br> <code>./gradlew build -PskipTests</code>
+  From the root folder, run the following command: <br> <code>./gradlew build -PskipTests</code>
 
 Run in docker
 ---
 
-From root folder you have to run the following command to start docker containers with the docker hub images:
-- <code>docker-compose up -d</code>
-
-Or if you have built them on your computer:
+From root folder you have to run the following command
 - <code>docker-compose up -d</code>
 
 When you run docker compose, these are the ports exposed to your computer:
@@ -91,3 +88,5 @@ FAQ
 
 2. Why using Graphql?
    <br> According to the description, this service needs to be consumed by a frontend, so GraphQL is the best tool for that since the UI can request only the needed data with the JSON structure defined in the schema. So there is no need to write extra endpoints to retrieve more data or less, just modelling in the schema and the UI will request only what is needed, reducing also the network load to the necessary one.
+
+3. Why cannot  

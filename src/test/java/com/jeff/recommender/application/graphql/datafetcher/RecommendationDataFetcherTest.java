@@ -1,6 +1,10 @@
 package com.jeff.recommender.application.graphql.datafetcher;
 
 import com.jeff.recommender.MockUtils;
+import com.jeff.recommender.application.graphql.exception.ApplicationError;
+import com.jeff.recommender.application.graphql.exception.GraphqlExceptionHandler;
+import com.jeff.recommender.domain.exception.CustomerNotFoundException;
+import com.jeff.recommender.domain.exception.RecommendationNotFoundException;
 import com.jeff.recommender.domain.model.Customer;
 import com.jeff.recommender.domain.model.Recommendation;
 import com.jeff.recommender.domain.model.Type;
@@ -8,6 +12,10 @@ import com.jeff.recommender.domain.service.RecommenderService;
 import com.netflix.graphql.dgs.DgsQueryExecutor;
 import com.netflix.graphql.dgs.autoconfig.DgsAutoConfiguration;
 import com.netflix.graphql.dgs.autoconfig.DgsExtendedScalarsAutoConfiguration;
+import com.netflix.graphql.types.errors.ErrorType;
+import graphql.ExecutionResult;
+import graphql.GraphQLError;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -18,6 +26,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,7 +37,8 @@ import static org.junit.jupiter.api.Assertions.*;
     classes = {
       DgsAutoConfiguration.class,
       RecommendationDataFetcher.class,
-      DgsExtendedScalarsAutoConfiguration.class
+      DgsExtendedScalarsAutoConfiguration.class,
+      GraphqlExceptionHandler.class
     })
 @Tag("Integration")
 class RecommendationDataFetcherTest {
@@ -35,6 +46,11 @@ class RecommendationDataFetcherTest {
   @MockBean RecommenderService recommenderService;
 
   @Autowired DgsQueryExecutor dgsQueryExecutor;
+
+  @BeforeEach
+  public void reset(){
+    Mockito.reset(recommenderService);
+  }
 
   @Test
   void recommendation() {
@@ -54,6 +70,18 @@ class RecommendationDataFetcherTest {
     assertEquals(recommendation.getId(), result.getId());
     assertEquals(recommendation.getCustomerId(), result.getCustomerId());
     assertEquals(recommendation.getType(), result.getType());
+  }
+  @Test
+  void recommendationWhenNotFound() {
+    Mockito.when(recommenderService.get(Mockito.any()))
+        .thenThrow(new RecommendationNotFoundException());
+    var result =
+        dgsQueryExecutor.execute(
+            "query { recommendation(id:\""
+                + UUID.randomUUID()
+                + "\") {id, customerId, type} }");
+    assertEquals(ErrorType.NOT_FOUND.name(), result.getErrors().get(0).getExtensions().get("errorType"));
+    assertEquals(ApplicationError.RECOMMENDATION_NOT_FOUND.getError().build().getMessage(), result.getErrors().get(0).getMessage());
   }
 
   @Test
@@ -139,5 +167,31 @@ class RecommendationDataFetcherTest {
             .collect(Collectors.toList());
     assertEquals(1, result.size());
     assertEquals(recommendation.getId(), result.get(0).getId());
+  }
+
+  @Test
+  void recommendWhenCustomerNotFound() {
+    Mockito.when(recommenderService.recommend(Mockito.any()))
+        .thenThrow(new CustomerNotFoundException());
+    ExecutionResult result =
+                dgsQueryExecutor.execute(
+                    "mutation { recommend(customerId:\""
+                        + UUID.randomUUID()
+                        + "\") {id, customerId, type} }");
+    assertEquals(ErrorType.NOT_FOUND.name(), result.getErrors().get(0).getExtensions().get("errorType"));
+    assertEquals(ApplicationError.CUSTOMER_NOT_FOUND.getError().build().getMessage(), result.getErrors().get(0).getMessage());
+  }
+
+  @Test
+  void recommendWhenUnknownError() {
+    Mockito.when(recommenderService.recommend(Mockito.any()))
+        .thenThrow(new RuntimeException());
+    ExecutionResult result =
+                dgsQueryExecutor.execute(
+                    "mutation { recommend(customerId:\""
+                        + UUID.randomUUID()
+                        + "\") {id, customerId, type} }");
+    assertEquals(ErrorType.INTERNAL.name(), result.getErrors().get(0).getExtensions().get("errorType"));
+    assertEquals(ApplicationError.INTERNAL_ERROR.getError().build().getMessage(), result.getErrors().get(0).getMessage());
   }
 }
