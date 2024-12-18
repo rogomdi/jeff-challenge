@@ -88,5 +88,3 @@ FAQ
 
 2. Why using Graphql?
    <br> According to the description, this service needs to be consumed by a frontend, so GraphQL is the best tool for that since the UI can request only the needed data with the JSON structure defined in the schema. So there is no need to write extra endpoints to retrieve more data or less, just modelling in the schema and the UI will request only what is needed, reducing also the network load to the necessary one.
-
-3. Why cannot  
